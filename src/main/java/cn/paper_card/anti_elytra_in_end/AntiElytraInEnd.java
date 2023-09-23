@@ -10,6 +10,9 @@ public final class AntiElytraInEnd extends JavaPlugin {
     private final static String KEY = "anti-elytra-in-end";
     private final static String KEY_ENABLE = KEY + ".enable";
 
+    private final static String KEY_ALLOW_FLY_RADIUS = KEY + ".allow-fly-radius";
+
+    private int allowFlyRadius = 1024;
 
     void setAntiElytraEnable(boolean enable) {
         this.getConfig().set(KEY_ENABLE, enable);
@@ -18,6 +21,14 @@ public final class AntiElytraInEnd extends JavaPlugin {
 
     boolean isAntiElytraEnable() {
         return this.getConfig().getBoolean(KEY_ENABLE, false);
+    }
+
+    void setAllowFlyRadius(int radius) {
+        this.allowFlyRadius = radius;
+    }
+
+    int getAllowFlyRadius() {
+        return this.allowFlyRadius;
     }
 
     @NotNull Permission addPermission(@NotNull String name) {
@@ -41,13 +52,16 @@ public final class AntiElytraInEnd extends JavaPlugin {
 
         // 保存默认值
         this.setAntiElytraEnable(this.isAntiElytraEnable());
+        this.allowFlyRadius = this.getConfig().getInt(KEY_ALLOW_FLY_RADIUS, 1024);
+        this.getConfig().set(KEY_ALLOW_FLY_RADIUS, this.allowFlyRadius);
 
         this.saveConfig();
     }
 
     @Override
     public void onDisable() {
+
+        this.getConfig().set(KEY_ALLOW_FLY_RADIUS, this.allowFlyRadius);
         this.saveConfig();
     }
-
 }

@@ -39,7 +39,7 @@ class TheListener implements Listener {
 
         // 在末地
         final double d = Math.max(Math.abs(location.getX()), Math.abs(location.getZ()));
-        if (d >= 256) {
+        if (d >= plugin.getAllowFlyRadius()) {
             event.setCancelled(true);
             player.sendMessage(Component.text("在当前区域不可使用鞘翅飞行，请等待禁飞期结束！").color(NamedTextColor.RED));
         }
@@ -62,7 +62,7 @@ class TheListener implements Listener {
         if (this.isNotTheEnd(world)) return;
 
         final double d = Math.max(Math.abs(location.getX()), Math.abs(location.getZ()));
-        if (d >= 256) {
+        if (d >= plugin.getAllowFlyRadius()) {
             event.setCancelled(true);
             p.sendMessage(Component.text("在当前区域不可使用鞘翅飞行，请等待禁飞期结束！").color(NamedTextColor.RED));
         }

@@ -9,7 +9,6 @@ folia-supported: true
 commands:
   anti-elytra-in-end:
     permission: anti-elytra-in-end.command
-    description: 末地鞘翅飞行开关命令
 
 permissions:
   anti-elytra-in-end.command:
