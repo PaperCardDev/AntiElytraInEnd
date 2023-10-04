@@ -1,8 +1,6 @@
 package cn.paper_card.anti_elytra_in_end;
 
 import cn.paper_card.mc_command.TheMcCommand;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
@@ -19,6 +17,7 @@ class TheCommand extends TheMcCommand.HasSub {
 
     private final @NotNull Permission permission;
 
+
     TheCommand(@NotNull AntiElytraInEnd plugin) {
         super("anti-elytra-in-end");
         this.plugin = plugin;
@@ -26,11 +25,9 @@ class TheCommand extends TheMcCommand.HasSub {
 
         this.addSubCommand(new Enable());
         this.addSubCommand(new Disable());
+        this.addSubCommand(new AntiElytraGoOut());
     }
 
-    private void sendError(@NotNull CommandSender sender, @NotNull String error) {
-        sender.sendMessage(Component.text(error).color(NamedTextColor.DARK_RED));
-    }
 
     @Override
     protected boolean canNotExecute(@NotNull CommandSender commandSender) {
@@ -63,16 +60,16 @@ class TheCommand extends TheMcCommand.HasSub {
                 try {
                     radius = Integer.parseInt(argRadius);
                 } catch (NumberFormatException e) {
-                    sendError(commandSender, "%s 不是一个正确的数值！".formatted(argRadius));
+                    plugin.sendError(commandSender, "%s 不是一个正确的数值！".formatted(argRadius));
                     return true;
                 }
 
                 plugin.setAllowFlyRadius(radius);
-                commandSender.sendMessage(Component.text("已将末地允许鞘翅飞行的区域半径设置为：%d".formatted(plugin.getAllowFlyRadius())));
+                plugin.sendInfo(commandSender, "已将末地允许鞘翅飞行的区域半径设置为：%d".formatted(plugin.getAllowFlyRadius()));
             }
 
             plugin.setAntiElytraEnable(true);
-            commandSender.sendMessage(Component.text("已设置禁止末地鞘翅飞行为：%s".formatted(plugin.isAntiElytraEnable() ? "开启" : "关闭")));
+            plugin.sendInfo(commandSender, "已设置禁止末地鞘翅飞行为：%s".formatted(plugin.isAntiElytraEnable() ? "开启" : "关闭"));
 
             return true;
         }
@@ -107,7 +104,7 @@ class TheCommand extends TheMcCommand.HasSub {
         public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
 
             plugin.setAntiElytraEnable(false);
-            commandSender.sendMessage(Component.text("已设置禁止末地鞘翅飞行为：%s".formatted(plugin.isAntiElytraEnable() ? "开启" : "关闭")));
+            plugin.sendInfo(commandSender, "已设置禁止末地鞘翅飞行为：%s".formatted(plugin.isAntiElytraEnable() ? "开启" : "关闭"));
 
             return true;
         }
@@ -116,6 +113,57 @@ class TheCommand extends TheMcCommand.HasSub {
         public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
             return null;
         }
+    }
+
+    class AntiElytraGoOut extends TheMcCommand.HasSub {
+
+        private final @NotNull Permission permission;
+
+        AntiElytraGoOut() {
+            super("anti-elytra-go-out");
+            this.permission = plugin.addPermission(TheCommand.this.permission.getName() + "." + this.getLabel());
+            this.addSubCommand(new OnOff(true));
+            this.addSubCommand(new OnOff(false));
+        }
+
+        @Override
+        protected boolean canNotExecute(@NotNull CommandSender commandSender) {
+            return !commandSender.hasPermission(this.permission);
+        }
+
+        class OnOff extends TheMcCommand {
+
+            private final @NotNull Permission permission;
+            private final boolean isOn;
+
+            protected OnOff(boolean isOn) {
+                super(isOn ? "on" : "off");
+                this.isOn = isOn;
+                this.permission = plugin.addPermission(AntiElytraGoOut.this.permission.getName() + "." + this.getLabel());
+            }
+
+            @Override
+            protected boolean canNotExecute(@NotNull CommandSender commandSender) {
+                return !commandSender.hasPermission(this.permission);
+            }
+
+            @Override
+            public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+
+                plugin.setAntiElytraPlayerGoOut(this.isOn);
+                plugin.sendInfo(commandSender, "禁止完成鞘翅成就的玩家前往末地外岛设置为：%s".formatted(
+                        plugin.isAntiElytraPlayerGoOut() ? "开启" : "关闭"
+                ));
+
+                return true;
+            }
+
+            @Override
+            public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
+                return null;
+            }
+        }
+
     }
 
 }
